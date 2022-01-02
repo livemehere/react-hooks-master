@@ -1,6 +1,6 @@
 # useState로 hooks 만들어 보기
 
-## 커스텀 useInput
+## useInput
 
 ### 기존 Input 핸들링
 
@@ -19,7 +19,7 @@ function App() {
 }
 ```
 
-### 만든 useInput
+### 커스텀 useInput
 
 ```js
 const useInput = (initialValue) => {
@@ -43,7 +43,7 @@ function App() {
 }
 ```
 
-## 커스텀 useTabs
+## useTabs
 
 ```js
 const example = [
@@ -163,6 +163,104 @@ function App() {
   return (
     <div className="App">
       <h1 ref={clickRef}>HELLO Click</h1>
+    </div>
+  );
+}
+```
+
+## useConfirm
+
+```js
+const useConfirm = (msg = "", callback, callback2) => {
+  const confirmAction = () => {
+    if (window.confirm(msg)) {
+      callback();
+    } else {
+      callback2();
+    }
+  };
+
+  return confirmAction;
+};
+
+function App() {
+  const deleteFn = () => {
+    console.log("삭제되었습니다");
+  };
+  const cancelFn = () => {
+    console.log("취소되었습니다");
+  };
+  const confirmDelete = useConfirm(
+    "정말 삭제하시겠습니까?",
+    deleteFn,
+    cancelFn
+  );
+  return (
+    <div className="App">
+      <button onClick={confirmDelete}>눌러보기</button>
+    </div>
+  );
+}
+```
+
+## usePreventLeave
+
+> 페이지를 끄거나, 새로고침할때 확인 메세지 띄우기
+
+- `event.preventDefault();` 는 없어도 동작함
+- `event.returnValue = "";` 없으면 동작 안함
+
+```js
+const usePreventLeave = () => {
+  const listener = (event) => {
+    event.preventDefault();
+    event.returnValue = "";
+  };
+
+  const enablePrevent = () => {
+    window.addEventListener("beforeunload", listener);
+  };
+  const disablePrevent = () => {
+    window.removeEventListener("beforeunload", listener);
+  };
+  return [enablePrevent, disablePrevent];
+};
+
+function App() {
+  const [enablePrevent, disablePrevent] = usePreventLeave();
+  return (
+    <div className="App">
+      <button onClick={enablePrevent}>나가기전 물어보기</button>
+      <button onClick={disablePrevent}>신경끄기</button>
+    </div>
+  );
+}
+```
+
+## useBeforeLeave
+
+> 사용자가 마우스를 document에서 leave 할때
+
+```js
+const useBeforeLeave = (callback) => {
+  const handle = (e) => {
+    const { clientY } = e;
+    if (clientY <= 0) {
+      callback();
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mouseleave", handle);
+    return () => document.removeEventListener("mouseleave", handle);
+  }, []);
+};
+
+function App() {
+  useBeforeLeave(() => console.log("dont leave.."));
+  return (
+    <div className="App">
+      <h1>Mouse Leave event</h1>
     </div>
   );
 }
