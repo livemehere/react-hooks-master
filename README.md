@@ -265,3 +265,84 @@ function App() {
   );
 }
 ```
+
+## useFadeIn
+
+> css로 해결할수있지만, hook으로 만들어보기
+
+```js
+const useFadeIn = (duration = 1) => {
+  const element = useRef();
+
+  useEffect(() => {
+    if (element.current) {
+      element.current.style.transition = `opacity ${duration}s`;
+      element.current.style.opacity = 1;
+    }
+  }, []);
+
+  return element;
+};
+
+function App() {
+  const fadeInH1 = useFadeIn(3);
+  return (
+    <div className="App">
+      <h1 ref={fadeInH1} style={{ opacity: 0 }}>
+        Mouse Leave event
+      </h1>
+    </div>
+  );
+}
+```
+
+## useScroll
+
+> window에 scroll 이벤트 심고, window.scrollY 값을 state로 추적하며 사용하기
+
+```js
+const useScroll = () => {
+  const [position, setPosition] = useState({ y: window.scrollY });
+
+  useEffect(() => {
+    window.addEventListener("scroll", () => {
+      setPosition(window.scrollY);
+    });
+  }, []);
+
+  return position;
+};
+
+function App() {
+  const y = useScroll();
+  return (
+    <div className="App" style={{ height: "1000vh" }}>
+      <h1 style={{ position: "fixed", color: y > 200 ? "red" : "blue" }}>
+        SCROLL
+      </h1>
+    </div>
+  );
+}
+```
+
+## new Notification 사용해보기
+
+> hook만든건아니고.. 알림사용법이다. 사용자가 chrome앱 자체의 알림을 막아놓으면 손쓸수있는 방법이없다. 또한 url마다 단 한번의 알림요청만 할수있다. 처음 사용자가 거절했다면 다시는 물어볼 방법이없다. 수동으로 알림을 키는수밖에...
+
+```js
+function App() {
+  useEffect(() => {
+    console.log("App");
+    Notification.requestPermission();
+    const n = new Notification("알림 title", {
+      body: "누를꺼지?",
+    });
+  }, []);
+
+  return (
+    <div className="App" style={{ height: "1000vh" }}>
+      <h1>Notification</h1>
+    </div>
+  );
+}
+```
